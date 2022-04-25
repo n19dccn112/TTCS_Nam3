@@ -38,7 +38,6 @@ namespace TTCS_Bai1
             this.btn_XoaMotBan = new DevExpress.XtraEditors.SimpleButton();
             this.btn_XoaDia = new DevExpress.XtraEditors.SimpleButton();
             this.btn_TaoThietBiSaoLuu = new DevExpress.XtraEditors.SimpleButton();
-            this.btn_LamMoi = new DevExpress.XtraEditors.SimpleButton();
             this.btn_PhucHoi = new DevExpress.XtraEditors.SimpleButton();
             this.btn_Luu = new DevExpress.XtraEditors.SimpleButton();
             this.panel2 = new System.Windows.Forms.Panel();
@@ -101,7 +100,6 @@ namespace TTCS_Bai1
             this.panel1.Controls.Add(this.btn_XoaMotBan);
             this.panel1.Controls.Add(this.btn_XoaDia);
             this.panel1.Controls.Add(this.btn_TaoThietBiSaoLuu);
-            this.panel1.Controls.Add(this.btn_LamMoi);
             this.panel1.Controls.Add(this.btn_PhucHoi);
             this.panel1.Controls.Add(this.btn_Luu);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
@@ -114,7 +112,7 @@ namespace TTCS_Bai1
             // 
             this.btn_PhucHoiTheoTG.Dock = System.Windows.Forms.DockStyle.Left;
             this.btn_PhucHoiTheoTG.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btn_PhucHoiTheoTG.ImageOptions.Image")));
-            this.btn_PhucHoiTheoTG.Location = new System.Drawing.Point(856, 0);
+            this.btn_PhucHoiTheoTG.Location = new System.Drawing.Point(741, 0);
             this.btn_PhucHoiTheoTG.Margin = new System.Windows.Forms.Padding(6);
             this.btn_PhucHoiTheoTG.Name = "btn_PhucHoiTheoTG";
             this.btn_PhucHoiTheoTG.Size = new System.Drawing.Size(193, 45);
@@ -127,7 +125,7 @@ namespace TTCS_Bai1
             this.checkBox_PhucHoiTheoTG.AutoSize = true;
             this.checkBox_PhucHoiTheoTG.BackColor = System.Drawing.SystemColors.ButtonHighlight;
             this.checkBox_PhucHoiTheoTG.Dock = System.Windows.Forms.DockStyle.Left;
-            this.checkBox_PhucHoiTheoTG.Location = new System.Drawing.Point(838, 0);
+            this.checkBox_PhucHoiTheoTG.Location = new System.Drawing.Point(723, 0);
             this.checkBox_PhucHoiTheoTG.Name = "checkBox_PhucHoiTheoTG";
             this.checkBox_PhucHoiTheoTG.Size = new System.Drawing.Size(18, 45);
             this.checkBox_PhucHoiTheoTG.TabIndex = 9;
@@ -138,7 +136,7 @@ namespace TTCS_Bai1
             // 
             this.btn_Thoat.Dock = System.Windows.Forms.DockStyle.Left;
             this.btn_Thoat.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btn_Thoat.ImageOptions.Image")));
-            this.btn_Thoat.Location = new System.Drawing.Point(731, 0);
+            this.btn_Thoat.Location = new System.Drawing.Point(616, 0);
             this.btn_Thoat.Margin = new System.Windows.Forms.Padding(8);
             this.btn_Thoat.Name = "btn_Thoat";
             this.btn_Thoat.Size = new System.Drawing.Size(107, 45);
@@ -150,7 +148,7 @@ namespace TTCS_Bai1
             // 
             this.btn_XoaMotBan.Dock = System.Windows.Forms.DockStyle.Left;
             this.btn_XoaMotBan.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btn_XoaMotBan.ImageOptions.Image")));
-            this.btn_XoaMotBan.Location = new System.Drawing.Point(600, 0);
+            this.btn_XoaMotBan.Location = new System.Drawing.Point(485, 0);
             this.btn_XoaMotBan.Margin = new System.Windows.Forms.Padding(6);
             this.btn_XoaMotBan.Name = "btn_XoaMotBan";
             this.btn_XoaMotBan.Size = new System.Drawing.Size(131, 45);
@@ -162,7 +160,7 @@ namespace TTCS_Bai1
             // 
             this.btn_XoaDia.Dock = System.Windows.Forms.DockStyle.Left;
             this.btn_XoaDia.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btn_XoaDia.ImageOptions.Image")));
-            this.btn_XoaDia.Location = new System.Drawing.Point(490, 0);
+            this.btn_XoaDia.Location = new System.Drawing.Point(375, 0);
             this.btn_XoaDia.Margin = new System.Windows.Forms.Padding(6);
             this.btn_XoaDia.Name = "btn_XoaDia";
             this.btn_XoaDia.Size = new System.Drawing.Size(110, 45);
@@ -174,25 +172,13 @@ namespace TTCS_Bai1
             // 
             this.btn_TaoThietBiSaoLuu.Dock = System.Windows.Forms.DockStyle.Left;
             this.btn_TaoThietBiSaoLuu.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btn_TaoThietBiSaoLuu.ImageOptions.Image")));
-            this.btn_TaoThietBiSaoLuu.Location = new System.Drawing.Point(320, 0);
+            this.btn_TaoThietBiSaoLuu.Location = new System.Drawing.Point(205, 0);
             this.btn_TaoThietBiSaoLuu.Margin = new System.Windows.Forms.Padding(0);
             this.btn_TaoThietBiSaoLuu.Name = "btn_TaoThietBiSaoLuu";
             this.btn_TaoThietBiSaoLuu.Size = new System.Drawing.Size(170, 45);
             this.btn_TaoThietBiSaoLuu.TabIndex = 5;
             this.btn_TaoThietBiSaoLuu.Text = "Tạo thiết bị sao lưu";
             this.btn_TaoThietBiSaoLuu.Click += new System.EventHandler(this.TaoThietBiSaoLuu_Click);
-            // 
-            // btn_LamMoi
-            // 
-            this.btn_LamMoi.Dock = System.Windows.Forms.DockStyle.Left;
-            this.btn_LamMoi.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btn_LamMoi.ImageOptions.Image")));
-            this.btn_LamMoi.Location = new System.Drawing.Point(205, 0);
-            this.btn_LamMoi.Margin = new System.Windows.Forms.Padding(6);
-            this.btn_LamMoi.Name = "btn_LamMoi";
-            this.btn_LamMoi.Size = new System.Drawing.Size(115, 45);
-            this.btn_LamMoi.TabIndex = 3;
-            this.btn_LamMoi.Text = "Làm mới";
-            this.btn_LamMoi.Click += new System.EventHandler(this.LamMoi_click);
             // 
             // btn_PhucHoi
             // 
@@ -555,7 +541,6 @@ namespace TTCS_Bai1
         private DevExpress.XtraEditors.SimpleButton btn_XoaMotBan;
         private DevExpress.XtraEditors.SimpleButton btn_XoaDia;
         private DevExpress.XtraEditors.SimpleButton btn_TaoThietBiSaoLuu;
-        private DevExpress.XtraEditors.SimpleButton btn_LamMoi;
         private DevExpress.XtraEditors.SimpleButton btn_PhucHoi;
         private DevExpress.XtraEditors.SimpleButton btn_Luu;
         private DevExpress.XtraEditors.SimpleButton btn_PhucHoiTheoTG;

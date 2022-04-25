@@ -1796,7 +1796,7 @@ namespace TTCS_Bai1.DataSetTableAdapters {
             this._adapter.UpdateCommand = new global::System.Data.SqlClient.SqlCommand();
             this._adapter.UpdateCommand.Connection = this.Connection;
             this._adapter.UpdateCommand.CommandText = @"UPDATE [msdb].[dbo].[backupset] SET [position] = @position, [name] = @name, [backup_start_date] = @backup_start_date, [user_name] = @user_name WHERE (((@IsNull_position = 1 AND [position] IS NULL) OR ([position] = @Original_position)) AND ((@IsNull_name = 1 AND [name] IS NULL) OR ([name] = @Original_name)) AND ((@IsNull_backup_start_date = 1 AND [backup_start_date] IS NULL) OR ([backup_start_date] = @Original_backup_start_date)) AND ((@IsNull_user_name = 1 AND [user_name] IS NULL) OR ([user_name] = @Original_user_name)) AND ([backup_set_id] = @Original_backup_set_id));
-SELECT position, name, backup_start_date, user_name, backup_set_id FROM msdb.dbo.backupset WHERE (backup_set_id = @backup_set_id) ORDER BY position DESC";
+SELECT position, name, backup_start_date, user_name, backup_set_id FROM msdb.dbo.backupset WHERE (backup_set_id = @backup_set_id)";
             this._adapter.UpdateCommand.CommandType = global::System.Data.CommandType.Text;
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@position", global::System.Data.SqlDbType.Int, 0, global::System.Data.ParameterDirection.Input, 0, 0, "position", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
             this._adapter.UpdateCommand.Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@name", global::System.Data.SqlDbType.NVarChar, 0, global::System.Data.ParameterDirection.Input, 0, 0, "name", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
@@ -1827,7 +1827,15 @@ SELECT position, name, backup_start_date, user_name, backup_set_id FROM msdb.dbo
             this._commandCollection = new global::System.Data.SqlClient.SqlCommand[1];
             this._commandCollection[0] = new global::System.Data.SqlClient.SqlCommand();
             this._commandCollection[0].Connection = this.Connection;
-            this._commandCollection[0].CommandText = @"SELECT position, name, backup_start_date, user_name, backup_set_id FROM msdb.dbo.backupset WHERE (database_name = @DBNAME) AND (type = 'D') AND (backup_set_id >= (SELECT MAX(backup_set_id) AS Expr1 FROM msdb.dbo.backupset AS backupset_2 WHERE (media_set_id = (SELECT MAX(media_set_id) AS Expr1 FROM msdb.dbo.backupset AS backupset_1 WHERE (database_name = @DBNAME) AND (type = 'D'))) AND (position = 1))) ORDER BY position DESC";
+            this._commandCollection[0].CommandText = @"SELECT position, name, backup_start_date, user_name, backup_set_id
+FROM msdb.dbo.backupset 
+    WHERE database_name = @DBNAME AND type = 'D' AND 
+	media_set_id = 
+                            (
+							SELECT MAX(media_set_id) AS Expr1 FROM msdb.dbo.backupset AS backupset_1 
+                                WHERE database_name = @DBNAME AND type = 'D'
+								
+							)";
             this._commandCollection[0].CommandType = global::System.Data.CommandType.Text;
             this._commandCollection[0].Parameters.Add(new global::System.Data.SqlClient.SqlParameter("@DBNAME", global::System.Data.SqlDbType.NVarChar, 128, global::System.Data.ParameterDirection.Input, 0, 0, "database_name", global::System.Data.DataRowVersion.Current, false, null, "", "", ""));
         }

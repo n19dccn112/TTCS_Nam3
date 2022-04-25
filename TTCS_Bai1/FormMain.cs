@@ -54,14 +54,35 @@ namespace TTCS_Bai1
             if (textBox_name.Text.Trim() == "" || deviceName == "") return;
             CheckDeviceExist();
             StrBackup = "BACKUP DATABASE " + textBox_name.Text.Trim() + " TO " + deviceName;
-            if (checkBox_XoaBanSaoLuuCu.Checked == true)
+            if (checkBox_XoaBanSaoLuuCu.Checked)
                 if (MessageBox.Show("Bạn thật sự muốn xóa các bản sao lưu cũ.", " Xác nhận", MessageBoxButtons.OKCancel) == DialogResult.OK)
                 {
                     StrBackup = StrBackup + " WITH INIT";
                     checkBox_XoaBanSaoLuuCu.Checked = false;
+
+                    int vitri;
+                    for (int i = 0; i < spbackupdateBindingSource.Count; i++)
+                    {
+                        vitri = int.Parse(((DataRowView)spbackupdateBindingSource[i])["position"].ToString());
+                        string sql = "USE master EXEC sp_xoamotban @database_name = " + textBox_name.Text.Trim() + ", @VTRI = " + vitri;
+
+
+                        int er = Program.ExecSqlNonQuery(sql, Program.connstr, "Lỗi phục hồi");
+                        if (er == 0)
+                        {
+                            
+                        }
+                        else if (er == 62)// KHÔNG TÌM THẤY SP LÀ MÃ 62
+                        {
+                            var taomoisp = MessageBox.Show("Bạn có muốn tạo sp để xóa các bản sao lưu cũ không?", "", MessageBoxButtons.YesNo);
+                            if (taomoisp.Equals(DialogResult.Yes))
+                            {
+                                TaoMoiSPHeThong(0);
+                            }
+                        }
+                    }
                 }
-                else
-                    return;
+                
             //ham program ExecSqlNonquery
             int err = Program.ExecSqlNonQuery(StrBackup, Program.connstr, "");
             if (err != 0)
@@ -75,12 +96,12 @@ namespace TTCS_Bai1
         }
         private void ShowDevice()
         {
-            btn_Luu.Enabled = btn_PhucHoi.Enabled = btn_PhucHoiTheoTG.Enabled = checkBox_PhucHoiTheoTG.Enabled = btn_LamMoi.Enabled = false;
+            btn_Luu.Enabled = btn_PhucHoi.Enabled = btn_PhucHoiTheoTG.Enabled = checkBox_PhucHoiTheoTG.Enabled =  false;
             btn_TaoThietBiSaoLuu.Enabled = true;
         }
         private void HideDevice()
         {
-            btn_Luu.Enabled = btn_PhucHoi.Enabled = btn_PhucHoiTheoTG.Enabled = checkBox_PhucHoiTheoTG.Enabled = btn_LamMoi.Enabled = true;
+            btn_Luu.Enabled = btn_PhucHoi.Enabled = btn_PhucHoiTheoTG.Enabled = checkBox_PhucHoiTheoTG.Enabled =  true;
             btn_TaoThietBiSaoLuu.Enabled = false;
         }
         private void CheckDeviceExist()
@@ -338,11 +359,6 @@ namespace TTCS_Bai1
         {
             if (MessageBox.Show("Bạn có muốn xóa bản này không ", "", MessageBoxButtons.OKCancel) != DialogResult.OK)
                 return;
-            if (bansaoluu == 1)
-            {
-                if (MessageBox.Show("Nếu Xóa bản backup đầu tiên thì sẽ mất các bản backup còn lại!!! ", "", MessageBoxButtons.OKCancel) != DialogResult.OK)
-                    return;
-            }
             string sql = "USE master EXEC sp_xoamotban @database_name = " + textBox_name.Text.Trim() + ", @VTRI = " + bansaoluu;
 
             
@@ -396,9 +412,6 @@ namespace TTCS_Bai1
                 label_huongdan.Visible = timeStop.Visible = dateStop.Visible = label_Ngaygio.Visible = checkBox_PhucHoiTheoTG.Checked = false;
             
         }
-        private void LamMoi_click(object sender, EventArgs e)
-        {
 
-        }
     }
 }

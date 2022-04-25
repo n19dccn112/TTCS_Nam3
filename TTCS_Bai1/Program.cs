@@ -201,7 +201,7 @@ namespace TTCS_Bai1
             if (conn.State == ConnectionState.Closed) conn.Open();
             try
             {
-                int loi = Sqlcmd.ExecuteNonQuery();
+                Sqlcmd.ExecuteNonQuery();
                 conn.Close();
                 return 0;
             }
