@@ -21,21 +21,13 @@ namespace TTCS_Bai1
         {
             InitializeComponent();
         }
-        private void FormMain_Load(object sender, EventArgs e)
-        {
-            // TODO: This line of code loads data into the 'dataSet.databases_Name' table. You can move, or remove it, as needed.
-            this.databases_nameTableAdapter.Connection.ConnectionString = Program.connstr;
-            this.databases_nameTableAdapter.Fill(this.dataSet.databases_Name);
-
-            HideNullData();
-        }
-        private void dataGridViewCSDL_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        private void gridView2(int vitri)
         {
             try
             {
                 if (databasesNameBindingSource.Position == -1 || databasesNameBindingSource.Count == 0 || databasesNameBindingSource.DataSource == null)
                     textBox_name.Text = "";
-                else textBox_name.Text = ((DataRowView)databasesNameBindingSource[databasesNameBindingSource.Position])["name"].ToString();
+                else textBox_name.Text = ((DataRowView)databasesNameBindingSource[vitri])["name"].ToString();
                 LoadLaiTrang();
             }
             catch (Exception ex)
@@ -43,15 +35,31 @@ namespace TTCS_Bai1
                 MessageBox.Show("Error: " + ex.Message, "", MessageBoxButtons.OK);
             }
         }
+        private void FormMain_Load(object sender, EventArgs e)
+        {
+            // TODO: This line of code loads data into the 'dataSet.databases_Name' table. You can move, or remove it, as needed.
+            this.databases_nameTableAdapter.Connection.ConnectionString = Program.connstr;
+            this.databases_nameTableAdapter.Fill(this.dataSet.databases_Name);
+
+            gridView2(0);
+            label_huongdan.Visible = timeStop.Visible = dateStop.Visible = label_Ngaygio.Visible = checkBox_PhucHoiTheoTG.Checked = false;
+        }
+        private void dataGridViewCSDL_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            gridView2(databasesNameBindingSource.Position);
+        }
         private void luu(object sender, EventArgs e)
         {
             String StrBackup;
             if (textBox_name.Text.Trim() == "" || deviceName == "") return;
             CheckDeviceExist();
             StrBackup = "BACKUP DATABASE " + textBox_name.Text.Trim() + " TO " + deviceName;
-            if (checkBox_PhucHoiTheoTG.Checked == true)
+            if (checkBox_XoaBanSaoLuuCu.Checked == true)
                 if (MessageBox.Show("Bạn thật sự muốn xóa các bản sao lưu cũ.", " Xác nhận", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                {
                     StrBackup = StrBackup + " WITH INIT";
+                    checkBox_XoaBanSaoLuuCu.Checked = false;
+                }
                 else
                     return;
             //ham program ExecSqlNonquery
@@ -64,12 +72,6 @@ namespace TTCS_Bai1
             MessageBox.Show("Đã lưu cơ sở dữ liệu");
 
             LoadLaiTrang();
-        }
-        private void HideNullData()
-        {
-            btn_Luu.Enabled = btn_PhucHoi.Enabled = btn_PhucHoiTheoTG.Enabled = checkBox_PhucHoiTheoTG.Enabled = false;
-            btn_TaoThietBiSaoLuu.Enabled = btn_LamMoi.Enabled = btn_XoaDia.Enabled = btn_XoaMotBan.Enabled = false;
-            label_Ngaygio.Enabled = dateStop.Enabled = timeStop.Enabled = false;
         }
         private void ShowDevice()
         {
@@ -132,11 +134,14 @@ namespace TTCS_Bai1
                 System.Windows.Forms.MessageBox.Show(ex.Message);
             }
         }
+        private void showdate(bool b)
+        {
+            label_Ngaygio.Visible = dateStop.Visible = timeStop.Visible = label_huongdan.Visible = b;
+            checkBox_PhucHoiTheoTG.Checked = b;
+        }
         private void phucHoi(object sender, EventArgs e)
         {
             int err;
-            LoadLaiTrang();
-            // chạy sp rồi dếm dòng
             if (this.spbackupdateBindingSource.Count == 0)
             {
                 MessageBox.Show("Chưa có bản sao lưu để phục hồi", "", MessageBoxButtons.OK);
@@ -147,110 +152,121 @@ namespace TTCS_Bai1
                 MessageBox.Show("Chưa có 1 bản sao lưu để phục hồi", "", MessageBoxButtons.OK);
                 return;
             }
+            // không có kết nối và trạng thái kết nối mở
             if (Program.conn != null && Program.conn.State == ConnectionState.Open)
                 Program.conn.Close();//đóng kết nối
 
             if (textBox_name .Text.Trim() == "" || deviceName == "") return;
+
             if (checkBox_PhucHoiTheoTG.Checked == false)
             {
-                label_Ngaygio.Enabled = dateStop.Enabled = timeStop.Enabled = false;
+                //int.Parse ép kiểu
+                bansaoluu = int.Parse(textBox_BangSaoLuu.Text.Trim());
 
-                String strRestore = " ALTER DATABASE " + textBox_name.Text.Trim()
-                    + " SET SINGLE_USER WITH ROLLBACK IMMEDIATE "
-                    + " USE tempdb "
-                    // cú pháp RESTORE DATABASE
-                    + "RESTORE DATABASE " + textBox_name.Text.Trim()
-                    // from backup_device
-                    + " FROM   " + deviceName + " WITH FILE =  " + bansaoluu + ", REPLACE  "
-                    + " ALTER DATABASE  " + textBox_name.Text.Trim() + " SET MULTI_USER";
-
+                showdate(false);
+                String strlenh = "EXEC sp_phuchoi '" + textBox_name.Text.Trim() + "', '" + bansaoluu + "'";
 
                 if (MessageBox.Show("Bạn chắc chắc muốn phục hồi database ", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
                 {
-                    err = Program.ExecSqlNonQuery(strRestore, Program.connstr, "");
+                    err = Program.ExecSqlNonQuery(strlenh, Program.connstr, "");
                     if (err == 0)
                         MessageBox.Show("Phục hồi thành công", "", MessageBoxButtons.OK);
+                    else if (err == 62)// KHÔNG TÌM THẤY SP LÀ MÃ 62
+                    {
+                        var taomoisp = MessageBox.Show("Bạn có muốn tạo sp_phuchoi không?", "", MessageBoxButtons.YesNo);
+                        if (taomoisp.Equals(DialogResult.Yes))
+                        {
+                            TaoMoiSPHeThong(2);
+                        }
+                    }
                 }
                 else
                     return;
-
             }
-
-
             else
             {
-                label_Ngaygio.Enabled = dateStop.Enabled = timeStop.Enabled = true;
+                showdate(true);
 
+                //ngày giờ full backup
                 DateTime ngaygiobk = (DateTime)((DataRowView)spbackupdateBindingSource[0])["backup_start_date"];
+
+                //chuyển sang kiểu string - ngày giờ stop
                 string strThoiDiemStopAt = dateStop.DateTime.ToString("yyyy-MM-dd") + " " + timeStop.Time.ToString("HH:mm:ss");
-                Console.Write(((DataRowView)spbackupdateBindingSource[0])["position"].ToString());
+
                 DateTime ThoiDiemStopAt;
                 ThoiDiemStopAt = DateTime.Parse(strThoiDiemStopAt);
-                if ((dateStop.DateTime.Date < ngaygiobk.Date) ||
-                           (dateStop.DateTime.Date == ngaygiobk.Date && ThoiDiemStopAt.TimeOfDay.Ticks < ngaygiobk.TimeOfDay.Ticks))
+
+                if ((dateStop.DateTime.Date < ngaygiobk.Date) || (dateStop.DateTime.Date == ngaygiobk.Date && ThoiDiemStopAt.TimeOfDay.Ticks < ngaygiobk.TimeOfDay.Ticks))
                 {
-                    MessageBox.Show("Thời điểm muốn phục hồi phải sau bản sao luu đã chọn.", "", MessageBoxButtons.OK);
+                    MessageBox.Show("Thời điểm muốn phục hồi phải sau bản sao luu mới nhất.", "", MessageBoxButtons.OK);
                     return;
                 }
+
                 if (ThoiDiemStopAt > DateTime.Now)
                 {
                     MessageBox.Show("Thời điểm muốn phục hồi phải trước thời điểm hiện tại", "", MessageBoxButtons.OK);
                     return;
                 }
+
                 if ((MessageBox.Show("Bạn chắc chắn muốn phục hồi database " + textBox_name.Text + " về ngày " +
                     ThoiDiemStopAt + " ?", "", MessageBoxButtons.OKCancel) == DialogResult.OK))
                 {
-                    
-                    String CheckTime = dateStop.DateTime.ToString("yyyy-MM-dd") + " " + timeStop.Time.ToString("HH:mm:ss");
-                    String StrTendevice = "use " + textBox_name.Text.Trim() +
-                        "\nselect  [Begin Time]  from  fn_dblog(null,null)" +
-                        "where[Begin Time] < '" + CheckTime + "'";
+                    // đọc backup log
+                    String StrTendevice = "use " + textBox_name.Text.Trim() + "\nselect  [Begin Time]  from  fn_dblog(null,null)" + "where[Begin Time] < '" + strThoiDiemStopAt + "'";
                     Program.myreader = Program.ExecSqlDataReader(StrTendevice);
 
+                    // lỗi
                     if (Program.myreader == null) return;
                     Program.myreader.Read();
 
-                    
+                    // không có dữ liệu
                     if (!Program.myreader.Read())
                     {
                         MessageBox.Show("Không tìm thấy bản log trong lịch sử.", "", MessageBoxButtons.OK);
                     }
                     else
                     {
+                        bansaoluu = int.Parse(((DataRowView)spbackupdateBindingSource[0])["position"].ToString());
+                        textBox_BangSaoLuu.Text = bansaoluu + "";
                         try
                         {
-                            //restore về thời điểm người dùng nhập
-                            String strLenh = "EXEC sp_phucHoiTheoTHoiGian " + textBox_name.Text.Trim() + ", \'" + strThoiDiemStopAt + "\', \'" +
-                                            Program.strDefaultPath  + "DEV_" + textBox_name.Text.Trim() + ".bak\'" + ", " + bansaoluu;
-                            MessageBox.Show(strLenh);
+                            // path backup log
+                            string path = Program.strDefaultPath + deviceName + ".trn";
+                            
+                            String strLenh = "EXEC sp_phuchoitheotg '" + textBox_name.Text.Trim() + "', '" + strThoiDiemStopAt + "', '" + path + "', '" + bansaoluu + "'";
+                            
                             err = Program.ExecSqlNonQuery(strLenh, Program.connstr, "Lỗi phục hồi csdl.");
                             if (err == 0)   MessageBox.Show("Phục hồi cơ sở dữ liệu đến " + strThoiDiemStopAt + " thành công!", "", MessageBoxButtons.OK);
+                            else if (err == 62)// KHÔNG TÌM THẤY SP LÀ MÃ 62
+                            {
+                                var taomoisp = MessageBox.Show("Bạn có muốn tạo sp_phuchoitheotg không?", "", MessageBoxButtons.YesNo);
+                                if (taomoisp.Equals(DialogResult.Yes))
+                                {
+                                    TaoMoiSPHeThong(1);
+                                }
+                            }
 
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show("Lỗi Restore:\n" + ex + "\n Tự động phục hồi về bản sao lưu mới nhất!", "", MessageBoxButtons.OK);
-                            String strRestore = " ALTER DATABASE " + textBox_name.Text.Trim()
-                            + " SET SINGLE_USER WITH ROLLBACK IMMEDIATE " 
-                            + " USE tempdb RESTORE DATABASE " + textBox_name.Text.Trim()
-                            + " FROM   " + deviceName + " WITH FILE =  " + ((DataRowView)spbackupdateBindingSource[0])["position"].ToString()
-                            + ", REPLACE  " // một cơ chế an toàn không cho phép chồng lên csdl khác
-                            + " ALTER DATABASE  " + textBox_name.Text.Trim() + " SET MULTI_USER";
-                            err = Program.ExecSqlNonQuery(strRestore, Program.connstr, "Lỗi phục hồi");
+                            String strlenh = "EXEC sp_phuchoi '" + textBox_name.Text.Trim() + "', '" + bansaoluu + "'";
+
+                            err = Program.ExecSqlNonQuery(strlenh, Program.connstr, "Lỗi phục hồi");
                             if (err == 0)   MessageBox.Show("Đã phục hồi về bản mới nhất", "", MessageBoxButtons.OK);
+                            else if (err == 62)// KHÔNG TÌM THẤY SP LÀ MÃ 62
+                            {
+                                var taomoisp = MessageBox.Show("Bạn có muốn tạo sp_phuchoi không?", "", MessageBoxButtons.YesNo);
+                                if (taomoisp.Equals(DialogResult.Yes))
+                                {
+                                    TaoMoiSPHeThong(2);
+                                }
+                            }
 
                         }
                     }
-                    label_Ngaygio.Enabled = dateStop.Enabled = timeStop.Enabled = false
-                        ;
-
                 }
-                else
-                {
-                    label_Ngaygio.Enabled = dateStop.Enabled = timeStop.Enabled = false;
-                    return;
-                }
-
+                else        return;
+                showdate(false);
             }
         }
         private void TaoThietBiSaoLuu_Click(object sender, EventArgs e)
@@ -283,7 +299,11 @@ namespace TTCS_Bai1
         }
         private void Thoat(object sender, EventArgs e)
         {
-            this.Close();
+            var thoat = MessageBox.Show("Bạn có muốn thoát?", "Thoát", MessageBoxButtons.YesNo);
+            if (thoat.Equals(DialogResult.Yes))
+            {
+                this.Close();
+            }
         }
         private void XoaDia(object sender, EventArgs e)
         {
@@ -333,17 +353,16 @@ namespace TTCS_Bai1
                     LoadLaiTrang();
                 }
                 else if (err==62)// KHÔNG TÌM THẤY SP LÀ MÃ 62
-            {
-                var taomoisp = MessageBox.Show("Bạn có muốn tạo sp_xoamotban không?", "", MessageBoxButtons.YesNo);
-                if(taomoisp.Equals(DialogResult.Yes))
                 {
-                    TaoMoiSPHeThong(0);
-                }    
-            }
+                    var taomoisp = MessageBox.Show("Bạn có muốn tạo sp_xoamotban không?", "", MessageBoxButtons.YesNo);
+                    if(taomoisp.Equals(DialogResult.Yes))
+                    {
+                        TaoMoiSPHeThong(0);
+                    }    
+                }
 
             
         }
-
         private void TaoMoiSPHeThong(int v)
         {
             int err = Program.ExecSqlNonQuery(Program.sp_Name[v], Program.connstr, "Lỗi tạo sp");
@@ -353,19 +372,15 @@ namespace TTCS_Bai1
                
             }
         }
-
         private void PhucHoiTheoThoiGian(object sender, EventArgs e)
         {
-            checkBox_PhucHoiTheoTG.Checked = true;
-            
-        }
+            if (checkBox_PhucHoiTheoTG.Checked)
+                checkBox_PhucHoiTheoTG.Checked = false;
+            else
+                checkBox_PhucHoiTheoTG.Checked = true;
+            label_huongdan.Visible = timeStop.Visible = dateStop.Visible = label_Ngaygio.Visible = checkBox_PhucHoiTheoTG.Checked;
 
-       private void DoPhucHoiTheoThoiGian()
-        {
-            
-            //
         }
-
         private void Cell_click(object sender, DataGridViewCellEventArgs e)
         {
             int index = e.RowIndex;
@@ -373,12 +388,17 @@ namespace TTCS_Bai1
             textBox_BangSaoLuu.Text = bansaoluu + "";
 
         }
-
         private void CB_PhucHoiChange(object sender, EventArgs e)
         {
-           button1.Visible= timeStop.Visible=dateStop.Visible = label_Ngaygio.Visible = checkBox_PhucHoiTheoTG.Checked;
-            label_Ngaygio.Enabled = dateStop.Enabled = timeStop.Enabled = checkBox_PhucHoiTheoTG.Checked;
-            DoPhucHoiTheoThoiGian();
+            if (checkBox_PhucHoiTheoTG.Checked)
+                label_huongdan.Visible = timeStop.Visible = dateStop.Visible = label_Ngaygio.Visible = checkBox_PhucHoiTheoTG.Checked;
+            else
+                label_huongdan.Visible = timeStop.Visible = dateStop.Visible = label_Ngaygio.Visible = checkBox_PhucHoiTheoTG.Checked = false;
+            
+        }
+        private void LamMoi_click(object sender, EventArgs e)
+        {
+
         }
     }
 }

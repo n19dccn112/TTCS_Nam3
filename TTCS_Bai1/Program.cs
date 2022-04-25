@@ -27,12 +27,14 @@ namespace TTCS_Bai1
         public static int nambatdau = 2022;//để cho cmbNK tự động tính dựa vào năm này
                                             // tra gg thằng này
         public static int flagRestore = 0;//để kiểm tra user có phục hồi csdl?
-        public static string strDefaultPath = "D:/PTIT/HK6/TTCS/TTCS_Bai1/";//thư mục mặc định lưu back up, restore
-
+        public static string strDefaultPath = "D:/PTIT/HK6/TTCS/TTCS_Bai1/backup/";
+                                                //thư mục mặc định lưu back up, restore
 
         public static String device_type = "Disk";
         public static FormDangNhap form;
-        public static String[] sp_Name = { @" CREATE PROCEDURE [dbo].[sp_xoamotban]
+        public static String[] sp_Name = { 
+            //---------------00000000000000000000000000000-------------------------------------sp_xoamotban
+            @" CREATE PROCEDURE [dbo].[sp_xoamotban]
             @database_name NVARCHAR(100),
             @VTRI INT
             AS
@@ -64,43 +66,66 @@ namespace TTCS_Bai1
                     DECLARE @ErrMess VARCHAR(1000) SELECT @ErrMess = 'LOI: ' + ERROR_MESSAGE() RAISERROR(@ErrMess, 16, 1)
                 END CATCH
                 END",
-            ////////////////////////////////////
-            @"CREATE PROCEDURE [dbo].[sp_phucHoiTheoTHoiGian]
+            //----------------111111111111111111111111--------------------------------sp_phucHoiTheoTHoiGian
+            @"CREATE PROCEDURE [dbo].[sp_phuchoitheotg]
 	            @dBName nvarchar(50),
-	            @date datetime,
+	            @date Nvarchar(MAX), --  t1 < T2 thời điểm sảy ra sự cố
 	            @directory Nvarchar(MAX),
-	            @bansaoluu int
+	            @bansaoluu nvarchar(50)
             AS
-            Begin
+            BEGIN
 	            Declare @SQLCommand Nvarchar(MAX)
 	            Declare @deviceName Nvarchar(100)
 	            SET @deviceName = 'DEV_' + @dBName
-	            -- bật transaction - giao tác
-	            SET XACT_ABORT ON
-                BEGIN TRANSACTION
-                BEGIN TRY
-                    Set @SQLCommand = N'ALTER DATABASE ' + @dBName + ' SET SINGLE_USER WITH ROLLBACK IMMEDIATE'
-		            -- phục hồi file nhật kí
-		            + N' BACKUP LOG ' + @dBName + ' TO DISK = ''' + @directory + ''' WITH INIT'
-		            + N' ,NORECOVERY' --thao tac restore không quay lại bất kì giao tác nào k được xác định, sẽ không hoàn giao tác lỗi   
-		            EXEC sp_sqlexec @SQLCommand
 
-		            Set @SQLCommand = N'USE tempdb RESTORE DATABASE ' + @dBName + 'FROM ' + @deviceName 
-		            + 'WITH FILE = ' + @bansaoluu + ',NORECOVERY'
-		            EXEC sp_sqlexec @SQLCommand
+	            -- Đóng lại database để không ai phục hồi xong đến khi db đc phục hồi xong
+	            Set @SQLCommand = N'ALTER DATABASE ' + @dBName + ' SET SINGLE_USER WITH ROLLBACK IMMEDIATE'
+	            EXEC sp_sqlexec @SQLCommand
 
-		            Set @SQLCommand = N'RESTORE DATABASE ' + @dBName + 'FROM DISK = ''' + @directory 
-		            + ''' WITH STOPAT=''' + @date + ''''
-		            EXEC sp_sqlexec @SQLCommand
+	            -- phục hồi file nhật kí
+	            Set @SQLCommand =  N' BACKUP LOG ' + @dBName + ' TO DISK = ''' + @directory + '''WITH INIT'
+						            + ' , NORECOVERY' --thao tac restore không quay lại bất kì giao tác nào k được xác định, sẽ không hoàn giao tác lỗi   
+	            EXEC sp_sqlexec @SQLCommand
 
-		            Set @SQLCommand = N'ALTER DATABASE ' + @dBName + ' SET MULTI_USER'
-		            EXEC sp_sqlexec @SQLCommand
-                    COMMIT TRANSACTION
-	            END TRY
-                BEGIN CATCH
-                    ROLLBACK
-                    DECLARE @ErrMess VARCHAR(1000) SELECT @ErrMess = 'LOI: ' + ERROR_MESSAGE() RAISERROR(@ErrMess, 16, 1)
-                END CATCH
+	            Set @SQLCommand = N'USE tempdb '
+	            EXEC sp_sqlexec @SQLCommand
+
+	            -- PHỤ HỒI THEO THỨ TỰ BẢN FULL BACKUP TỚI BẢN BACKUP
+	            Set @SQLCommand = N'RESTORE DATABASE ' + @dBName + ' FROM ' + @deviceName + ' WITH FILE = ' + @bansaoluu + ', NORECOVERY '
+	            EXEC sp_sqlexec @SQLCommand
+
+	            Set @SQLCommand = N'RESTORE DATABASE ' + @dBName + ' FROM DISK = ''' + @directory 
+						            + ''' WITH STOPAT=''' + @date + ''''
+	            EXEC sp_sqlexec @SQLCommand
+
+	            -- SET LẠI CHẾ ĐỘ BT
+	            Set @SQLCommand = N'ALTER DATABASE ' + @dBName + ' SET MULTI_USER'
+	            EXEC sp_sqlexec @SQLCommand 
+            END",
+            //------------------------------22222222222222222222222222--------------------------sp_phucHoi
+            @"CREATE PROCEDURE [dbo].[sp_phuchoi]
+	            @dBName nvarchar(50),
+	            @bansaoluu nvarchar(50)
+            AS
+            BEGIN
+	            Declare @SQLCommand Nvarchar(MAX)
+	            Declare @deviceName Nvarchar(100)
+	            SET @deviceName = 'DEV_' + @dBName
+
+	            -- Đóng lại database để không ai phục hồi xong đến khi db đc phục hồi xong
+	            Set @SQLCommand = N'ALTER DATABASE ' + @dBName + ' SET SINGLE_USER WITH ROLLBACK IMMEDIATE'
+	            EXEC sp_sqlexec @SQLCommand
+
+	            Set @SQLCommand = N'USE tempdb '
+	            EXEC sp_sqlexec @SQLCommand
+
+	            -- PHỤ HỒI THEO THỨ TỰ BẢN FULL BACKUP TỚI BẢN BACKUP
+	            Set @SQLCommand = N'RESTORE DATABASE ' + @dBName + ' FROM ' + @deviceName + ' WITH FILE = ' + @bansaoluu + ', REPLACE ' -- một cơ chế an toàn không cho phép chồng lên csdl khác
+	            EXEC sp_sqlexec @SQLCommand
+
+	            -- SET LẠI CHẾ ĐỘ BT
+	            Set @SQLCommand = N'ALTER DATABASE ' + @dBName + ' SET MULTI_USER'
+	            EXEC sp_sqlexec @SQLCommand 
             END"
         };
         public static int KetNoi()
@@ -172,7 +197,7 @@ namespace TTCS_Bai1
             conn = new SqlConnection(connectionstring);
             SqlCommand Sqlcmd = new SqlCommand(strlenh, conn);
             Sqlcmd.CommandType = CommandType.Text;
-            Sqlcmd.CommandTimeout = 600; //10 phut
+            //Sqlcmd.CommandTimeout = 600; //10 phut
             if (conn.State == ConnectionState.Closed) conn.Open();
             try
             {

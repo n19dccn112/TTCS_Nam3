@@ -65,7 +65,7 @@ namespace TTCS_Bai1
             this.panel5 = new System.Windows.Forms.Panel();
             this.timeStop = new DevExpress.XtraEditors.TimeEdit();
             this.dateStop = new DevExpress.XtraEditors.DateEdit();
-            this.button1 = new System.Windows.Forms.Button();
+            this.label_huongdan = new System.Windows.Forms.Button();
             this.label_Ngaygio = new System.Windows.Forms.Label();
             this.checkBox_XoaBanSaoLuuCu = new System.Windows.Forms.CheckBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
@@ -192,6 +192,7 @@ namespace TTCS_Bai1
             this.btn_LamMoi.Size = new System.Drawing.Size(115, 45);
             this.btn_LamMoi.TabIndex = 3;
             this.btn_LamMoi.Text = "Làm mới";
+            this.btn_LamMoi.Click += new System.EventHandler(this.LamMoi_click);
             // 
             // btn_PhucHoi
             // 
@@ -424,7 +425,7 @@ namespace TTCS_Bai1
             this.panel5.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.panel5.Controls.Add(this.timeStop);
             this.panel5.Controls.Add(this.dateStop);
-            this.panel5.Controls.Add(this.button1);
+            this.panel5.Controls.Add(this.label_huongdan);
             this.panel5.Controls.Add(this.label_Ngaygio);
             this.panel5.Controls.Add(this.checkBox_XoaBanSaoLuuCu);
             this.panel5.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -455,15 +456,15 @@ namespace TTCS_Bai1
             this.dateStop.Size = new System.Drawing.Size(195, 22);
             this.dateStop.TabIndex = 11;
             // 
-            // button1
+            // label_huongdan
             // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button1.Location = new System.Drawing.Point(890, 124);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(396, 51);
-            this.button1.TabIndex = 10;
-            this.button1.Text = resources.GetString("button1.Text");
-            this.button1.UseVisualStyleBackColor = true;
+            this.label_huongdan.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label_huongdan.Location = new System.Drawing.Point(890, 124);
+            this.label_huongdan.Name = "label_huongdan";
+            this.label_huongdan.Size = new System.Drawing.Size(396, 51);
+            this.label_huongdan.TabIndex = 10;
+            this.label_huongdan.Text = resources.GetString("label_huongdan.Text");
+            this.label_huongdan.UseVisualStyleBackColor = true;
             // 
             // label_Ngaygio
             // 
@@ -565,7 +566,7 @@ namespace TTCS_Bai1
         private DataSet dataSet;
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Panel panel5;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button label_huongdan;
         private System.Windows.Forms.Label label_Ngaygio;
         private System.Windows.Forms.CheckBox checkBox_XoaBanSaoLuuCu;
         private DevExpress.XtraEditors.DateEdit dateStop;
